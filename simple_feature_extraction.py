@@ -2,6 +2,9 @@ import cv2
 from time import sleep
 from matrix import Matrix, kernel_multiplicate
 import numpy as np
+from time import time
+
+start = time()
 
 vid = cv2.VideoCapture(0)
 
@@ -175,3 +178,7 @@ while not is_done:
 vid.release()
 
 cv2.destroyAllWindows()
+
+end = time()
+
+print(end - start)
