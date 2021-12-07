@@ -1,8 +1,7 @@
 import cv2
-from time import sleep
+from time import sleep, time
 from matrix import Matrix, kernel_multiplicate
 import numpy as np
-from time import time
 
 start = time()
 
@@ -128,29 +127,31 @@ while not is_done:
 
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-    kernel_multiplicated_image = kernel_multiplicate(
-        first_matrix=kernel,
-        second_matrix=Matrix(values=frame),
-        stride_length=2,
-        crop_to_val=255)
+    # kernel_multiplicated_image = kernel_multiplicate(first_matrix=kernel, second_matrix=Matrix(values=frame), stride_length=2, crop_to_val=255)
+    kernel_multiplicated_image = Matrix(values=frame)
 
     new_image = np.array(kernel_multiplicated_image.values)
-    cv2.imwrite("old_image.jpg", frame)
-    cv2.imwrite("new_image.jpg", new_image)
+    cv2.imwrite("./images/old_image.jpg", frame)
+    # cv2.imwrite("./images/new_image.jpg", new_image)
 
     f = 1 / 255
     new_frame = [[b * f for b in a] for a in frame]
 
+    difference_frame = kernel_multiplicate(first_matrix=Matrix(values=[[1,1,1],[1,1,1],[1,1,1]]), second_matrix=kernel_multiplicated_image, stride_length=1, crop_to_val=255, get_average=True, get_difference=True)
+
+    newer_frame = np.array(difference_frame.values)
+
+    cv2.imwrite("./images/difference_frame.jpg", newer_frame)
+
     new_images_filtered = []
 
+    i = 0
     for filter in filters:
-        new_image_filtered = kernel_multiplicate(
-            first_matrix=filter,
-            second_matrix=Matrix(values=new_frame),
-            stride_length=1,
-            crop_to_val=255,
-            get_average=True).values
+        new_image_filtered = kernel_multiplicate(first_matrix=filter, second_matrix=difference_frame, stride_length=1, crop_to_val=255, get_average=True).values
         new_images_filtered.append(new_image_filtered)
+        cv2.imwrite(f"./images/filtered_images/filter_{i}.jpg", np.array(new_image_filtered))
+        i += 1
+        
 
     end_image = []
     for a in range(len(new_images_filtered[0])):
@@ -166,13 +167,8 @@ while not is_done:
         for b in range(len(end_image[a])):
             if end_image[a][b] > 255:
                 end_image[a][b] = 255
-            elif end_image[a][b] < 150:
-                end_image[a][b] = 0
 
-    print(end_image)
-    cv2.imwrite("new_image_filtered.jpg", np.array(end_image))
-    print(frame.shape)
-    print(new_image.shape)
+    cv2.imwrite("./images/new_image_filtered.jpg", np.array(end_image))
     is_done = True
 
 vid.release()
