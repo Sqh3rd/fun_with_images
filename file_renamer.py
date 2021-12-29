@@ -1,10 +1,10 @@
 import os
 
-for dir in os.listdir('./input_images'):
+for i, dir in enumerate(os.listdir('./input_images')):
 
     DIR = dir
     print(dir)
-    if not dir == '3 - 9er Balken':
+    if i < 
         continue
     FILES = []
     for f in os.listdir(f'./input_images/{DIR}'):
