@@ -26,8 +26,14 @@ class Activation_Functions:
         return [exp(i)/sum([exp(a) for a in inp]) for i in inp]
 
     def der_softmax(self, inp:list, index:int) -> float:
-        softmax_of_index = self.softmax(Activation_Functions, inp)[index]
-        return softmax_of_index*(1-softmax_of_index)
+        s = self.softmax(Activation_Functions, inp)
+        sum_of_influence = 0
+        for i in range(len(inp)):
+            if i == index:
+                sum_of_influence += s[i] * (1-s[i])
+            else:
+                sum_of_influence += -s[i] * s[index]
+        return sum_of_influence
 
     SIGMOID = (sigmoid, der_sigmoid)
     RELU = (relu, der_relu)
@@ -152,6 +158,7 @@ class Multilayer_Perceptron:
                     results.append(result)
                     costs.append(cost)
                     for k in range(len(current_layer.perceptrons)):
+                        print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}        Layer {j}/{len(self.layers)}        Perceptron {k+1}/{len(current_layer.perceptrons)}', end='')
                         current_perceptron = current_layer.perceptrons[k]
                         current_perceptron_value = preds[i][current_layer_index+1][k]
                         should_be_current_value = temp_perceptron_change_suggestions[current_layer_index][k][i]
@@ -176,7 +183,7 @@ class Multilayer_Perceptron:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         else:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
-                        temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = statistics.mean(perceptron_change_suggestions[current_layer_index - 1][k][i])
+                        temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + statistics.mean(perceptron_change_suggestions[current_layer_index - 1][k][i])
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
                     self.layers[j].perceptrons[k].bias += statistics.mean([a[0] for a in bias_change_suggestions[j][k]])
@@ -184,6 +191,8 @@ class Multilayer_Perceptron:
                         if weight_change_suggestions[j][k][l][0] == []:
                             continue
                         self.layers[j].perceptrons[k].weights[l] += statistics.mean([a[0] for a in weight_change_suggestions[j][k][l]])
+        print('')
+        self.write_to_file()
     
     def write_to_file(self):
         with open(self.file_path, 'w') as f:
@@ -208,6 +217,7 @@ class Multilayer_Perceptron:
                     f.write(f'b{perceptron.bias}\n')
                     for weight in perceptron.weights:
                         f.write(f'w{weight}\n')
+        print('Writing complete!')
 
     def read_from_file(self):
         self.activation_functions = []
@@ -234,6 +244,8 @@ class Multilayer_Perceptron:
                                 self.activation_functions.append(Activation_Functions.SOFTMAX)
                     case 'i':
                         self.amount_inputs = int(line[1:])
+                    case 's':
+                        self.step_size = float(line[1:])
                     case 'l':
                         self.layers.append(Layer(int(line[1:]), (len(self.layers[-1].perceptrons)) if len(self.layers) > 0 else self.amount_inputs, self.activation_functions[len(self.layers)], cost_function = self.cost_function))
                         p_index = -1
