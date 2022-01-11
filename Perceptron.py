@@ -152,6 +152,7 @@ class Multilayer_Perceptron:
                     results.append(result)
                     costs.append(cost)
                     for k in range(len(current_layer.perceptrons)):
+                        print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}        Layer {j}/{len(self.layers)}        Perceptron {k+1}/{len(current_layer.perceptrons)}', end='')
                         current_perceptron = current_layer.perceptrons[k]
                         current_perceptron_value = preds[i][current_layer_index+1][k]
                         should_be_current_value = temp_perceptron_change_suggestions[current_layer_index][k][i]
@@ -184,6 +185,8 @@ class Multilayer_Perceptron:
                         if weight_change_suggestions[j][k][l][0] == []:
                             continue
                         self.layers[j].perceptrons[k].weights[l] += statistics.mean([a[0] for a in weight_change_suggestions[j][k][l]])
+        print('')
+        self.write_to_file()
     
     def write_to_file(self):
         with open(self.file_path, 'w') as f:
@@ -208,6 +211,7 @@ class Multilayer_Perceptron:
                     f.write(f'b{perceptron.bias}\n')
                     for weight in perceptron.weights:
                         f.write(f'w{weight}\n')
+        print('Writing complete!')
 
     def read_from_file(self):
         self.activation_functions = []
@@ -234,6 +238,8 @@ class Multilayer_Perceptron:
                                 self.activation_functions.append(Activation_Functions.SOFTMAX)
                     case 'i':
                         self.amount_inputs = int(line[1:])
+                    case 's':
+                        self.step_size = float(line[1:])
                     case 'l':
                         self.layers.append(Layer(int(line[1:]), (len(self.layers[-1].perceptrons)) if len(self.layers) > 0 else self.amount_inputs, self.activation_functions[len(self.layers)], cost_function = self.cost_function))
                         p_index = -1

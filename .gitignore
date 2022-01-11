@@ -1,0 +1,5 @@
+*.txt
+0.txt
+Multilayer_Perceptrons/
+*.jpg
+!0_DONE.jpg
