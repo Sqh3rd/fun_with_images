@@ -113,6 +113,7 @@ class Multilayer_Perceptron:
         if read:
             self.read_from_file()
             return
+        self.step_size = step_size*10**17
         self.cost_function = cost_function
         self.activation_functions = activation_functions
         self.amount_inputs = amount_input
@@ -177,28 +178,28 @@ class Multilayer_Perceptron:
                             derivative_activation_function = current_layer.activation_function[1]
                             derivative_cost_function = self.cost_function[1]
                             if derivative_activation_function == Activation_Functions.SOFTMAX[1]:
-                                weight_change_suggestions[current_layer_index][k][l][i].append(self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                                weight_change_suggestions[current_layer_index][k][l][i].append(-self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                             elif derivative_activation_function != Activation_Functions.LEAKY_RELU[1]:
-                                weight_change_suggestions[current_layer_index][k][l][i].append(self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, current_perceptron.sum)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                                weight_change_suggestions[current_layer_index][k][l][i].append(-self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, current_perceptron.sum)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                             else:
-                                weight_change_suggestions[current_layer_index][k][l][i].append(self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, current_perceptron.sum, self.leaky_relu_const)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                                weight_change_suggestions[current_layer_index][k][l][i].append(-self.step_size*(previous_perceptron_value*derivative_activation_function(Activation_Functions, current_perceptron.sum, self.leaky_relu_const)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                         if derivative_activation_function == Activation_Functions.SOFTMAX[1]:
-                            bias_change_suggestions[current_layer_index][k][i].append(self.step_size*(derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                            bias_change_suggestions[current_layer_index][k][i].append(-self.step_size*(derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                         elif derivative_activation_function != Activation_Functions.LEAKY_RELU[1]:
-                            bias_change_suggestions[current_layer_index][k][i].append(self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                            bias_change_suggestions[current_layer_index][k][i].append(-self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                         else:
-                            bias_change_suggestions[current_layer_index][k][i].append(self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum, self.leaky_relu_const)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+                            bias_change_suggestions[current_layer_index][k][i].append(-self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum, self.leaky_relu_const)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                     if j == len(self.layers):
                         continue
                     for k in range(len(previous_layer.perceptrons)):
                         derivative_activation_function = current_layer.activation_function[1]
                         derivative_cost_function = self.cost_function[1]
                         if derivative_activation_function == Activation_Functions.SOFTMAX[1]:
-                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
+                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, [perceptron.sum for perceptron in current_layer.perceptrons], k)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         elif derivative_activation_function != Activation_Functions.LEAKY_RELU[1]:
-                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
+                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         else:
-                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
+                            perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])/len(perceptron_change_suggestions[current_layer_index - 1][k][i])
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):

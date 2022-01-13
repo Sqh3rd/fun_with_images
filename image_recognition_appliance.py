@@ -14,7 +14,7 @@ image.replace(0, -1)
 
 NN_PATH = './Multilayer_Perceptrons/1.txt'
 
-nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8], 80*60, [Activation_Functions.SIGMOID], Cost_Functions.CROSS_ENTROPY, 10**16, NN_PATH, False)
+nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8], 80*60, [Activation_Functions.SIGMOID], Cost_Functions.CROSS_ENTROPY, 1, NN_PATH, True)
 
 count = 0
 result = []
