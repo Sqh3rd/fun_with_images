@@ -40,6 +40,7 @@ class Activation_Functions:
                 sum_of_influence += -s[i] * s[index]
         return sum_of_influence
 
+    # Only Sigmoid is viable at the moment
     SIGMOID = (sigmoid, der_sigmoid)
     RELU = (relu, der_relu)
     LEAKY_RELU = (leaky_relu, der_leaky_relu)
