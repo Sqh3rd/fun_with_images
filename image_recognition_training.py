@@ -34,3 +34,4 @@ else:
 for t in test_batches:
     images = [image_to_matrix(cv2.imread(f'{t[j][0]}'))[0] for j in range(len(t))]
     nn.backpropagate([[im.values[a][b] for a in range(len(im.values)) for b in range(len(im.values[a]))] for im in images], [t[j][1] for j in range(len(t))], 1)
+    

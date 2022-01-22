@@ -118,11 +118,11 @@ class Multilayer_Perceptron:
         self.amount_inputs = amount_input
         while len(activation_functions) <= len(amount_neurons):
             self.activation_functions.append(activation_functions[-1])   
-        self.activation_functions[len(amount_neurons)] = Activation_Functions.SOFTMAX
+        # self.activation_functions[len(amount_neurons)] = Activation_Functions.SOFTMAX
         self.layers = []
         for i in range(len(amount_neurons)):
             self.layers.append(Layer(amount_neurons[i], amount_neurons[i-1] if i > 0 else amount_input, self.activation_functions[i], cost_function = self.cost_function, leaky_relu_const=leaky_relu_const))
-        self.layers.append(Layer(amount_neurons[-1], amount_neurons[-1], self.activation_functions[-1], cost_function = self.cost_function))
+        # self.layers.append(Layer(amount_neurons[-1], amount_neurons[-1], self.activation_functions[-1], cost_function = self.cost_function))
         self.step_size = step_size
         self.leaky_relu_const = leaky_relu_const
     
@@ -133,7 +133,15 @@ class Multilayer_Perceptron:
         return result
 
     def calculate(self, inp:list) -> list:
-        return self.layers[-1].calculate(self.base_calculation(inp)[-1])
+        if len(self.layers) > 1:
+            return self.layers[-1].calculate(self.base_calculation(inp)[-1])
+        else:
+            return self.base_calculation(inp)
+
+    def get_everything_from_calculate(self, inp:list) -> list:
+        result = self.base_calculation(inp)
+        result.append(self.layers[-1].calculate(result[-1]))
+        return result
 
     def backpropagate(self, inp:list[list], act:list[list], iterations:int) -> None:
         for it in range(iterations):
@@ -157,6 +165,7 @@ class Multilayer_Perceptron:
                     temp_perceptron_change_suggestions[-1][j][i] = act[i][j]
 
             for i in range(len(inp)):
+                print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}', end='')
                 for j in range(1, len(self.layers) + 1):
                     current_layer_index = len(self.layers) - j
                     current_layer = self.layers[current_layer_index]
@@ -168,7 +177,6 @@ class Multilayer_Perceptron:
                     results.append(result)
                     costs.append(cost)
                     for k in range(len(current_layer.perceptrons)):
-                        print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}        Layer {j}/{len(self.layers)}        Perceptron {k+1}/{len(current_layer.perceptrons)}', end='')
                         current_perceptron = current_layer.perceptrons[k]
                         current_perceptron_value = preds[i][current_layer_index+1][k]
                         should_be_current_value = temp_perceptron_change_suggestions[current_layer_index][k][i]
@@ -199,7 +207,8 @@ class Multilayer_Perceptron:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         else:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
-                        temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])/len(perceptron_change_suggestions[current_layer_index - 1][k][i])
+                    for k in range(len(previous_layer.perceptrons)):
+                        temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
                     self.layers[j].perceptrons[k].bias += sum([a[0] for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
