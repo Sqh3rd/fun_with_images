@@ -40,6 +40,7 @@ class Activation_Functions:
                 sum_of_influence += -s[i] * s[index]
         return sum_of_influence
 
+    # Only Sigmoid is viable at the moment
     SIGMOID = (sigmoid, der_sigmoid)
     RELU = (relu, der_relu)
     LEAKY_RELU = (leaky_relu, der_leaky_relu)
@@ -56,7 +57,7 @@ class Cost_Functions:
         return [(-act[i]*log(pred[i]) for i in range(len(pred)))]
 
     def der_cross_entropy(pred:list[float], act:list[float]):
-        return -act*(1/log(pred))
+        return -act*(1/pred)
     
     SQUARED_DIFF = (squared_diff, der_squared_diff)
     CROSS_ENTROPY = (cross_entropy, der_cross_entropy)
@@ -113,6 +114,7 @@ class Multilayer_Perceptron:
         if read:
             self.read_from_file()
             return
+        self.step_size = step_size*10**17
         self.cost_function = cost_function
         self.activation_functions = activation_functions
         self.amount_inputs = amount_input
