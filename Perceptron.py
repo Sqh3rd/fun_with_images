@@ -209,7 +209,6 @@ class Multilayer_Perceptron:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         else:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
-                    for k in range(len(previous_layer.perceptrons)):
                         temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
@@ -220,7 +219,7 @@ class Multilayer_Perceptron:
                         self.layers[j].perceptrons[k].weights[l] += sum([a[0] for a in weight_change_suggestions[j][k][l]])/len([a[0] for a in weight_change_suggestions[j][k][l]])
         print('')
         self.write_to_file()
-    
+
     def write_to_file(self):
         with open(self.file_path, 'w') as f:
             match self.cost_function:
