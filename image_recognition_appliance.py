@@ -21,12 +21,12 @@ images = [pooling(pooling(get_difference_frame_of_image(kernel, image_to_matrix(
 
 NN_PATH = './Multilayer_Perceptrons/1.txt'
 
-nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8], 80*60, [Activation_Functions.SIGMOID], Cost_Functions.SQUARED_DIFF, 1, NN_PATH, False)
+nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8, 8], 80*60, [Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.SOFTMAX], Cost_Functions.CROSS_ENTROPY, 1, NN_PATH, True)
 
 count = 0
 result = []
 earlier_result = []
-for i in range(2):
+for i in range(1):
     earlier_result = result
     nn.backpropagate([[image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))] for image in images], classifications, 1)
     for image in images:

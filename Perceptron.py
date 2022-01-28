@@ -17,9 +17,9 @@ class Activation_Functions:
 
     def leaky_relu(self, inp:float, const) -> float:
         if inp > 0:
-            return max(min(inp, 1000), 0)
+            return max(inp, 0)
         else:
-            return min(max(inp*const, -1000), 0)
+            return min(inp*const, 0)
 
     def der_leaky_relu(self, inp:float, const) -> float:
         if inp > 0:
@@ -114,7 +114,7 @@ class Multilayer_Perceptron:
         if read:
             self.read_from_file()
             return
-        self.step_size = step_size*10**17
+        self.step_size = step_size
         self.cost_function = cost_function
         self.activation_functions = activation_functions
         self.amount_inputs = amount_input
@@ -167,7 +167,7 @@ class Multilayer_Perceptron:
                     temp_perceptron_change_suggestions[-1][j][i] = act[i][j]
 
             for i in range(len(inp)):
-                print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}', end='')
+                print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}{"".join([" " for i in range(20)])}', end='')
                 for j in range(1, len(self.layers) + 1):
                     current_layer_index = len(self.layers) - j
                     current_layer = self.layers[current_layer_index]
