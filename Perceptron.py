@@ -40,7 +40,6 @@ class Activation_Functions:
                 sum_of_influence += -s[i] * s[index]
         return sum_of_influence
 
-    # Only Sigmoid is viable at the moment
     SIGMOID = (sigmoid, der_sigmoid)
     RELU = (relu, der_relu)
     LEAKY_RELU = (leaky_relu, der_leaky_relu)
@@ -68,18 +67,14 @@ class Perceptron:
         self.bias = random()
 
     def weighted_sum(self, inp:list) -> float:
-        self.sum = 0
-        for i in range(len(inp)):
-            self.sum += inp[i] * self.weights[i]
+        self.sum = sum([inp[i] * self.weights[i] for i in range(len(inp))])
         self.sum += self.bias
         return self.sum
 
 class Layer:
     def __init__(self, size, size_perceptron, activation_function, leaky_relu_const = 0.01, cost_function = None):
         self.leaky_relu_const = leaky_relu_const
-        self.perceptrons = []
-        for i in range(size):
-            self.perceptrons.append(Perceptron(size_perceptron))
+        self.perceptrons = [Perceptron(size_perceptron) for i in range(size)]
         self.activation_function = activation_function
         self.cost_function = cost_function
     
@@ -145,7 +140,7 @@ class Multilayer_Perceptron:
         result.append(self.layers[-1].calculate(result[-1]))
         return result
 
-    def backpropagate(self, inp:list[list], act:list[list], iterations:int) -> None:
+    def backpropagate(self, inp:list[list], act:list[list], iterations:int, print_current_iteration_and_input=True) -> None:
         for it in range(iterations):
             preds = []
 
@@ -167,7 +162,8 @@ class Multilayer_Perceptron:
                     temp_perceptron_change_suggestions[-1][j][i] = act[i][j]
 
             for i in range(len(inp)):
-                print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}{"".join([" " for i in range(20)])}', end='')
+                if print_current_iteration_and_input:
+                    print(f'\rIteration {it+1}/{iterations}        Input {i+1}/{len(inp)}{"".join([" " for i in range(20)])}', end='')
                 for j in range(1, len(self.layers) + 1):
                     current_layer_index = len(self.layers) - j
                     current_layer = self.layers[current_layer_index]
@@ -198,8 +194,18 @@ class Multilayer_Perceptron:
                             bias_change_suggestions[current_layer_index][k][i].append(-self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
                         else:
                             bias_change_suggestions[current_layer_index][k][i].append(-self.step_size*(derivative_activation_function(Activation_Functions, current_perceptron.sum, self.leaky_relu_const)*derivative_cost_function(current_perceptron_value, should_be_current_value)))
+
                     if j == len(self.layers):
                         continue
+
+                    #
+                    # NOT SO IMPORTANTE
+                    #
+                    # Shits not working around here probably
+                    #
+                    # Insert -self.step_size* before sum()
+                    # 
+
                     for k in range(len(previous_layer.perceptrons)):
                         derivative_activation_function = current_layer.activation_function[1]
                         derivative_cost_function = self.cost_function[1]
@@ -210,6 +216,7 @@ class Multilayer_Perceptron:
                         else:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])
+
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
                     self.layers[j].perceptrons[k].bias += sum([a[0] for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
@@ -217,10 +224,11 @@ class Multilayer_Perceptron:
                         if weight_change_suggestions[j][k][l][0] == []:
                             continue
                         self.layers[j].perceptrons[k].weights[l] += sum([a[0] for a in weight_change_suggestions[j][k][l]])/len([a[0] for a in weight_change_suggestions[j][k][l]])
-        print('')
-        self.write_to_file()
+        if print_current_iteration_and_input:
+            print('')
+        self.write_to_file(should_print=print_current_iteration_and_input)
 
-    def write_to_file(self):
+    def write_to_file(self, should_print=True):
         with open(self.file_path, 'w') as f:
             match self.cost_function:
                 case Cost_Functions.SQUARED_DIFF:
@@ -245,7 +253,8 @@ class Multilayer_Perceptron:
                     f.write(f'b{perceptron.bias}\n')
                     for weight in perceptron.weights:
                         f.write(f'w{weight}\n')
-        print('Writing complete!')
+        if should_print:
+            print('Writing complete!')
 
     def read_from_file(self):
         self.activation_functions = []
