@@ -63,8 +63,8 @@ class Cost_Functions:
 
 class Perceptron:
     def __init__(self, size) -> None:
-        self.weights = [random() for i in range(size)]
-        self.bias = random()
+        self.weights = [0.5 for i in range(size)]
+        self.bias = 0.5
 
     def weighted_sum(self, inp:list) -> float:
         self.sum = sum([inp[i] * self.weights[i] for i in range(len(inp))])
@@ -219,7 +219,7 @@ class Multilayer_Perceptron:
 
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
-                    self.layers[j].perceptrons[k].bias += sum([a[0] for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
+                    self.layers[j].perceptrons[k].bias += sum([a[0] * (1.5 if a[0] < 0 else 1) for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
                     for l in range(len(self.layers[j].perceptrons[k].weights)):
                         if weight_change_suggestions[j][k][l][0] == []:
                             continue

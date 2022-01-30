@@ -11,7 +11,7 @@ TEMPLATE = "plotly_dark"
 
 pio.templates.default = TEMPLATE
 
-nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELU], Cost_Functions.SQUARED_DIFF, 0.5, './test.txt', False)
+nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.SIGMOID], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
 
 old_results=[[]]
 bias = []
@@ -31,7 +31,7 @@ for l in nn.layers:
 for l in OR_LIST:
     old_results[-1].append(nn.calculate(l))
 
-for i in range(450):
+for i in range(500):
     nn.backpropagate(OR_LIST, CLASSIFICATIONS, 1, False)
 
     old_results.append([])
@@ -43,7 +43,7 @@ for i in range(450):
             bias[l][p].append(nn.layers[l].perceptrons[p].bias)
             for w in range(len(nn.layers[l].perceptrons[p].weights)):
                 weights[l][p][w].append(nn.layers[l].perceptrons[p].weights[w])
-    
+
     # for l in nn.layers:
     #     for p in l.perceptrons:
     #         print(f"Bias: {p.bias}\nWeights: {p.weights}\n")
