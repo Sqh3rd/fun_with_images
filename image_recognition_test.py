@@ -11,7 +11,7 @@ TEMPLATE = "plotly_dark"
 
 pio.templates.default = TEMPLATE
 
-nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.SIGMOID], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
+nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELU], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
 
 old_results=[[]]
 bias = []
@@ -31,13 +31,13 @@ for l in nn.layers:
 for l in OR_LIST:
     old_results[-1].append(nn.calculate(l))
 
-for i in range(500):
+for i in range(1):
     nn.backpropagate(OR_LIST, CLASSIFICATIONS, 1, False)
 
     old_results.append([])
     for l in OR_LIST:
         old_results[-1].append(nn.calculate(l))
-    
+
     for l in range(len(nn.layers)):
         for p in range(len(nn.layers[l].perceptrons)):
             bias[l][p].append(nn.layers[l].perceptrons[p].bias)
@@ -56,7 +56,7 @@ names = result_names
 names.extend(bias_names)
 names.extend(weight_names)
 
-fig = make_subplots(rows=3, cols=len(old_results[0][0]) if len(old_results[0][0]) > sum([len(bias[j]) for j in range(len(bias))]) else sum([len(bias[j]) for j in range(len(bias))]), subplot_titles=names, shared_yaxes=True, shared_xaxes=True)
+fig = make_subplots(rows=3, cols=len(old_results[0][0]) if len(old_results[0][0]) > sum([len(bias[j]) for j in range(len(bias))]) else sum([len(bias[j]) for j in range(len(bias))]), subplot_titles=names, shared_yaxes=False, shared_xaxes=True)
 
 xs = [i for i in range(len(old_results))]
 

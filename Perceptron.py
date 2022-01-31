@@ -154,7 +154,7 @@ class Multilayer_Perceptron:
             costs = []
             weight_change_suggestions = [[[[[] for i in range(len(inp))] for w in p.weights] for p in l.perceptrons] for l in self.layers]
             bias_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers]
-            perceptron_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers]
+            perceptron_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers[:-1]]
             temp_perceptron_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers]
 
             for i in range(len(act)):
@@ -217,9 +217,11 @@ class Multilayer_Perceptron:
                             perceptron_change_suggestions[current_layer_index - 1][k][i].append(-self.step_size*sum([current_layer.perceptrons[l].weights[k]*derivative_activation_function(Activation_Functions, current_layer.perceptrons[l].sum, self.leaky_relu_const)*derivative_cost_function(preds[i][current_layer_index][k], temp_perceptron_change_suggestions[current_layer_index][l][i]) for l in range(len(current_layer.perceptrons))]))
                         temp_perceptron_change_suggestions[current_layer_index - 1][k][i] = previous_layer.perceptrons[k].sum + sum(perceptron_change_suggestions[current_layer_index - 1][k][i])
 
+            print(perceptron_change_suggestions)
+
             for j in range(len(self.layers)):
                 for k in range(len(self.layers[j].perceptrons)):
-                    self.layers[j].perceptrons[k].bias += sum([a[0] * (1.5 if a[0] < 0 else 1) for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
+                    self.layers[j].perceptrons[k].bias += sum([a[0] for a in bias_change_suggestions[j][k]])/len([a[0] for a in bias_change_suggestions[j][k]])
                     for l in range(len(self.layers[j].perceptrons[k].weights)):
                         if weight_change_suggestions[j][k][l][0] == []:
                             continue
