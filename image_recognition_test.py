@@ -4,14 +4,14 @@ from plotly.subplots import make_subplots
 import plotly.graph_objs as go
 import plotly.io as pio
 
-OR_LIST = [[0,10], [10, 0], [10,10], [0,0]]
+OR_LIST = [[0,1], [1, 0], [1,1], [0,0]]
 CLASSIFICATIONS = [[1, 0], [1, 0], [1, 0], [0, 1]]
 SINGLE_CLASSIFICATIONS = [[0],[0],[0],[1]]
 TEMPLATE = "plotly_dark"
 
 pio.templates.default = TEMPLATE
 
-nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELOG, Activation_Functions.SOFTMAX], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
+nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
 
 old_results=[[]]
 bias = []
@@ -64,7 +64,7 @@ names = result_names
 names.extend(bias_names)
 names.extend(weight_names)
 
-fig = make_subplots(rows=3, cols=len(old_results[0][0]) if len(old_results[0][0]) > sum([len(bias[j]) for j in range(len(bias))]) else sum([len(bias[j]) for j in range(len(bias))]), subplot_titles=names, shared_yaxes=False, shared_xaxes=True)
+fig = make_subplots(rows=3, cols=4, subplot_titles=names, shared_yaxes=False, shared_xaxes=True)
 
 xs = [i for i in range(len(old_results))]
 
