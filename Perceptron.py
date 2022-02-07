@@ -79,8 +79,8 @@ class Cost_Functions:
 
 class Perceptron:
     def __init__(self, size) -> None:
-        self.weights = [0.5 for i in range(size)]
-        self.bias = 0.5
+        self.weights = [random() for i in range(size)]
+        self.bias = random()
 
     def weighted_sum(self, inp:list) -> float:
         self.sum = sum([inp[i] * self.weights[i] for i in range(len(inp))]) + self.bias
