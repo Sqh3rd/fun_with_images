@@ -30,17 +30,18 @@ class Activation_Functions:
             return const
     
     def softmax(self, inp:list) -> list:
-        return [exp(i)/sum({exp(a) for a in inp}) for i in inp]
+        return [exp(i)/sum(exp(a) for a in inp) for i in inp]
 
     def der_softmax(self, inp:list, index:int) -> float:
         s = self.softmax(Activation_Functions, inp)
-        sum_of_influence = 0
+        sum_of_influences = 0
         for i in range(len(inp)):
             if i == index:
-                sum_of_influence += s[i] * (1-s[i])
+                sum_of_influences += s[i] * (1-s[i])
             else:
-                sum_of_influence -= s[i] * s[index]
-        return sum_of_influence
+                sum_of_influences -= s[i] * s[index]
+
+        return sum_of_influences
 
     def leaky_relog(self, x, start_x, log_basis, const, leaky_relu_const) -> float:
         if x < start_x:
@@ -135,7 +136,7 @@ class Multilayer_Perceptron:
         self.activation_functions = activation_functions
         self.amount_inputs = amount_input
         self.leaky_relu_const = leaky_relu_const
-        self.start_x = 1
+        self.start_x = 10
         self.leaky_relog_const = 0.5
         self.log_basis = 3
         while len(activation_functions) <= len(amount_neurons):

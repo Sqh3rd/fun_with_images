@@ -11,7 +11,7 @@ TEMPLATE = "plotly_dark"
 
 pio.templates.default = TEMPLATE
 
-nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
+nn = Multilayer_Perceptron([2, 2], 2, [Activation_Functions.LEAKY_RELOG, Activation_Functions.SOFTMAX], Cost_Functions.SQUARED_DIFF, 0.01, './test.txt', False)
 
 old_results=[[]]
 bias = []
