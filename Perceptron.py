@@ -130,23 +130,22 @@ class Multilayer_Perceptron:
         self.file_path = file_path
         if read:
             self.read_from_file()
-            return
-        self.step_size = step_size
-        self.cost_function = cost_function
-        self.activation_functions = activation_functions
-        self.amount_inputs = amount_input
-        self.leaky_relu_const = leaky_relu_const
-        self.start_x = 10
-        self.leaky_relog_const = 0.5
-        self.log_basis = 3
-        while len(activation_functions) <= len(amount_neurons):
-            self.activation_functions.append(activation_functions[-1])   
-        # self.activation_functions[len(amount_neurons)] = Activation_Functions.SOFTMAX
-        self.layers = []
-        for i in range(len(amount_neurons)):
-            self.layers.append(Layer(amount_neurons[i], amount_neurons[i-1] if i > 0 else amount_input, self.activation_functions[i], self.start_x, self.log_basis, self.leaky_relog_const, self.leaky_relu_const, self.cost_function))
-        # self.layers.append(Layer(amount_neurons[-1], amount_neurons[-1], self.activation_functions[-1], cost_function = self.cost_function))
-        self.step_size = step_size
+        else:
+            self.step_size = step_size
+            self.cost_function = cost_function
+            self.activation_functions = activation_functions
+            self.amount_inputs = amount_input
+            self.leaky_relu_const = leaky_relu_const
+            self.start_x = 10
+            self.leaky_relog_const = 0.5
+            self.log_basis = 3
+            while len(activation_functions) <= len(amount_neurons):
+                self.activation_functions.append(activation_functions[-1])   
+            # self.activation_functions[len(amount_neurons)] = Activation_Functions.SOFTMAX
+            self.layers = []
+            for i in range(len(amount_neurons)):
+                self.layers.append(Layer(amount_neurons[i], amount_neurons[i-1] if i > 0 else amount_input, self.activation_functions[i], self.start_x, self.log_basis, self.leaky_relog_const, self.leaky_relu_const, self.cost_function))
+            # self.layers.append(Layer(amount_neurons[-1], amount_neurons[-1], self.activation_functions[-1], cost_function = self.cost_function))
         self.weight_past_velocity = [[[0 for w in p.weights] for p in l.perceptrons] for l in self.layers]
         self.bias_past_velocity = [[0 for p in l.perceptrons] for l in self.layers]
         self.perceptron_past_velocity = [[0 for p in l.perceptrons] for l in self.layers]
@@ -180,7 +179,7 @@ class Multilayer_Perceptron:
             perceptron_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers[:-1]]
             temp_perceptron_change_suggestions = [[[[] for i in range(len(inp))] for p in l.perceptrons] for l in self.layers]
 
-            momentum = 0.05
+            momentum = self.step_size
 
             for i in range(len(act)):
                 for j in range(len(act[i])):
@@ -279,7 +278,9 @@ class Multilayer_Perceptron:
                         f.write('a3\n')
                     case Activation_Functions.SOFTMAX:
                         f.write('a4\n')
-            f.write(f's{self.step_size}\ni{self.amount_inputs}\nlrc{self.leaky_relu_const}\n')
+                    case Activation_Functions.LEAKY_RELOG:
+                        f.write('a5\n')
+            f.write(f's{self.step_size}\ni{self.amount_inputs}\nlruc{self.leaky_relu_const}\nlrgc{self.leaky_relog_const}\nlog{self.log_basis}\nsx{self.start_x}\n')
             for layer in self.layers:
                 f.write(f'l{(len(layer.perceptrons))}\n')
                 for perceptron in layer.perceptrons:
@@ -315,15 +316,24 @@ class Multilayer_Perceptron:
                                 self.activation_functions.append(Activation_Functions.LEAKY_RELU)
                             case '4':
                                 self.activation_functions.append(Activation_Functions.SOFTMAX)
+                            case '5':
+                                self.activation_functions.append(Activation_Functions.LEAKY_RELOG)
                     case 'i':
                         self.amount_inputs = int(line[1:])
                     case 's':
-                        self.step_size = float(line[1:])
-                    case 'l':
-                        if line[:3] == 'lrc':
-                            self.leaky_relu_const = line[3:]
+                        if line[1] == 'x':
+                            self.start_x = float(line[2:])
                         else:
-                            self.layers.append(Layer(int(line[1:]), (len(self.layers[-1].perceptrons)) if len(self.layers) > 0 else self.amount_inputs, self.activation_functions[len(self.layers)], cost_function = self.cost_function))
+                            self.step_size = float(line[1:])
+                    case 'l':
+                        if line[:4] == 'lruc':
+                            self.leaky_relu_const = float(line[4:])
+                        elif line[:4] == 'lrgc':
+                            self.leaky_relog_const = float(line[4:])
+                        elif line[:3] == 'log':
+                            self.log_basis = float(line[3:])
+                        else:
+                            self.layers.append(Layer(int(line[1:]), (len(self.layers[-1].perceptrons)) if len(self.layers) > 0 else self.amount_inputs, self.activation_functions[len(self.layers)], self.start_x, self.log_basis, self.leaky_relog_const, self.leaky_relu_const, self.cost_function))
                             p_index = -1
                     case 'p':
                         p_index += 1

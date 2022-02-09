@@ -19,29 +19,28 @@ original_image = cv2.imread('./input_images/3er_Balken/1_DONE.jpg')
 
 images = [pooling(pooling(get_difference_frame_of_image(kernel, image_to_matrix(cv2.imread(f"{PATH}{image}{END}"))), (2,2), Flags.MAX_POOLING), (2,2), Flags.MAX_POOLING).replace_between(-1, 10, 0, True).replace_between(0.1, 255, 1, True) for image in images]
 
-NN_PATH = './Multilayer_Perceptrons/1.txt'
+NN_PATH = './Multilayer_Perceptrons/0.txt'
 
 nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8, 8], 80*60, [Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.SOFTMAX], Cost_Functions.CROSS_ENTROPY, 1, NN_PATH, True)
 
 count = 0
 result = []
 earlier_result = []
-for i in range(1):
+for i in range(2):
     earlier_result = result
     nn.backpropagate([[image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))] for image in images], classifications, 1)
     for image in images:
-        result = nn.get_everything_from_calculate([image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))])
+        result = nn.calculate([image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))])
         stuff = ["2x4", "3er", "3x3", "3x3x7", "3x5", "3x7", "4x4", "4x6"]
 
         highest_index = 0
         highest_value = 0
 
         for i in range(len(result)):
-            if result[-1][i] > highest_value:
-                highest_value = result[-1][i]
+            if result[i] > highest_value:
+                highest_value = result[i]
                 highest_index = i
 
-        print(result[-1])
-        print(result[-2])
+        print(result)
         print(stuff)
         print(stuff[highest_index])
