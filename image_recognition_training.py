@@ -33,9 +33,9 @@ for i in range(int(len(possible_list)//test_batch_length)):
         test_batches[-1].append(possible_list[randint(0, len(possible_list) - 1)])
 
 if should_read and nn_exists:
-    nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8], 80*60, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 10, NN_PATH, True)
+    nn = Multilayer_Perceptron([500, 200, 100, 8, 8], 80*60, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 0.1, NN_PATH, True)
 else:
-    nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8], 80*60, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 10, NN_PATH)
+    nn = Multilayer_Perceptron([500, 200, 100, 8, 8], 80*60, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 0.1, NN_PATH)
     nn.write_to_file()
 
 for i, t in enumerate(test_batches):

@@ -21,16 +21,16 @@ images = [pooling(pooling(get_difference_frame_of_image(kernel, image_to_matrix(
 
 NN_PATH = './Multilayer_Perceptrons/0.txt'
 
-nn = Multilayer_Perceptron([1000, 400, 400, 200, 100, 8, 8], 80*60, [Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.LEAKY_RELU, Activation_Functions.SOFTMAX], Cost_Functions.CROSS_ENTROPY, 1, NN_PATH, True)
+nn = Multilayer_Perceptron([500, 200, 100, 8], 80*60, [Activation_Functions.LEAKY_RELOG], Cost_Functions.SQUARED_DIFF, 0.01, NN_PATH, False)
 
 count = 0
 result = []
 earlier_result = []
-for i in range(2):
+for i in range(20):
     earlier_result = result
-    nn.backpropagate([[image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))] for image in images], classifications, 1)
     for image in images:
-        result = nn.calculate([image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))])
+        all_results = nn.get_everything_from_calculate([image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))])
+        result = all_results[-1]
         stuff = ["2x4", "3er", "3x3", "3x3x7", "3x5", "3x7", "4x4", "4x6"]
 
         highest_index = 0
@@ -42,5 +42,8 @@ for i in range(2):
                 highest_index = i
 
         print(result)
-        print(stuff)
+        print(*[sum(i) for i in all_results[::-1]], sep=', ')
+        print(*[sum([sum(p.weights) for p in l.perceptrons]) for l in nn.layers[::-1]], sep=', ')
         print(stuff[highest_index])
+        print()
+    nn.backpropagate([[image.values[a][b] for a in range(len(image.values)) for b in range(len(image.values[a]))] for image in images], classifications, 1)

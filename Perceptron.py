@@ -16,12 +16,7 @@ class Activation_Functions:
         return 1 if inp > 0 else 0
 
     def leaky_relu(self, inp:float, const) -> float:
-        if 1000 > inp > 0:
-            return max(inp, 0)
-        elif inp < 0:
-            return min(inp*const, 0)
-        else:
-            return 
+        return max(inp, inp*const)
 
     def der_leaky_relu(self, inp:float, const) -> float:
         if inp > 0:
@@ -79,8 +74,8 @@ class Cost_Functions:
 
 class Perceptron:
     def __init__(self, size) -> None:
-        self.weights = [random() for i in range(size)]
-        self.bias = random()
+        self.weights = [0 for i in range(size)]
+        self.bias = 1
 
     def weighted_sum(self, inp:list) -> float:
         self.sum = sum([inp[i] * self.weights[i] for i in range(len(inp))]) + self.bias
@@ -136,8 +131,8 @@ class Multilayer_Perceptron:
             self.activation_functions = activation_functions
             self.amount_inputs = amount_input
             self.leaky_relu_const = leaky_relu_const
-            self.start_x = 10
-            self.leaky_relog_const = 0.5
+            self.start_x = 100000
+            self.leaky_relog_const = 2
             self.log_basis = 3
             while len(activation_functions) <= len(amount_neurons):
                 self.activation_functions.append(activation_functions[-1])   
